@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% block title %}Users{% endblock %}
+{% endblock %}
+{% block description %}
+subscribe to users to view they posts
+{% endblock %}
+
+{% block content %}
+<div class="card-columns">
+    {% for _, user in users.items() %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ user['nick'] }}</h5>
+            <form method="post">
+                {% if user.subscribed %}
+                <button class="btn btn-outline-danger" type="submit" name="sub" value="{{ user['id'] }}">Unsubscribe</button>
+                {% else %}
+                <button class="btn btn-primary" type="submit" name="sub" value="{{ user['id'] }}">Subscribe</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

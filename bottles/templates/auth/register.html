@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% block title %}Register{% endblock %}
+{% endblock %}
+{% block description %}
+Please register to gain acces to our app
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    <div class="form-group">
+        <label for="nick">Nickname</label>
+        <input type="text" class="form-control" name="nick" id="nick" aria-describedby="emailHelp" placeholder="Enter nick">
+        <small id="emailHelp" class="form-text text-muted">Your identifier that will be displayed publicly</small>
+    </div>
+    <div class="form-group">
+        <label for="username">E-mail</label>
+        <input type="email" class="form-control" name="username" id="username" aria-describedby="emailHelp" placeholder="Enter email">
+        <small id="emailHelp" class="form-text text-muted">Your e-mail adress will be your login</small>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" name="password" id="password" placeholder="Password">
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% block title %}Log-in{% endblock %}
+{% endblock %}
+{% block description %}
+One step from the bottles
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    <div class="form-group">
+        <label for="username">E-mail</label>
+        <input type="email" class="form-control" name="username" id="username" aria-describedby="emailHelp" placeholder="Enter email">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" name="password" id="password" placeholder="Password">
+    </div>
+    <button type="submit" class="btn btn-primary">Log in</button>
+</form>
+{% endblock %}

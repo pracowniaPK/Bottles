@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% block title %}New post{% endblock %}
+{% endblock %}
+{% block description %}
+here you can write a new post
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('blog.root') }}" style="margin-top: 1em">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" name="title" id="title" placeholder="Title">
+            </div>
+            <div class="form-group">
+                <label for="body">Content</label>
+                <textarea class="form-control" name="body" id="body" rows="3" placeholder="Your post"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

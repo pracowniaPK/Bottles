@@ -1,0 +1,4 @@
+include bottles/schema.sql
+graft bottles/static
+graft bottles/templates
+global-exclude *.pyc
