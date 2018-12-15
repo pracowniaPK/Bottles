@@ -9,6 +9,7 @@ from bottles.auth import login_required
 bp = Blueprint('blog', __name__, url_prefix='/')
 
 @bp.route('/', methods=['GET', 'POST'])
+@login_required
 def root():
 
     db = get_db()
@@ -23,6 +24,7 @@ def root():
             (g.user['id'], title, body)
         )
         db.commit()
+        flash('Post added successfully')
 
     posts = db.execute(
         'SELECT * FROM post \
@@ -32,11 +34,10 @@ def root():
         (g.user['id'], )
     ).fetchall()
 
-    print(posts)
-
     return render_template('blog/blog.html', posts=posts)
 
 @bp.route('/new')
+@login_required
 def new():
 
     return render_template('blog/new.html')
@@ -46,6 +47,7 @@ def new():
 #         abort(403)
 
 @bp.route('/users', methods=['GET', 'POST'])
+@login_required
 def users():
 
     db = get_db()

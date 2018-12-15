@@ -27,7 +27,7 @@ def register():
             error = 'Passwd required'
         elif db.execute('SELECT id FROM user WHERE nick = ?',
                         (nick, )).fetchone() is not None:
-            error = 'Nick {} is already taken.'.format(username)
+            error = 'Nick {} is already taken.'.format(nick)
         elif db.execute('SELECT id FROM user WHERE username = ?',
                         (username, )).fetchone() is not None:
             error = 'User {} is already registered.'.format(username)
@@ -89,7 +89,8 @@ def login_required(view):
     @functools.wraps(view)
     def wrapper(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            flash('Log in or register.')
+            return redirect(url_for('auth.register'))
         
         return view(**kwargs)
 
