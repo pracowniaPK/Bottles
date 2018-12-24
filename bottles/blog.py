@@ -17,14 +17,23 @@ def root():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
-        # TODO sprawdzić czy nie puste
-        db.execute(
-            'INSERT INTO post \
-            (author_id, title, body) VALUES (?, ?, ?)',
-            (g.user['id'], title, body)
-        )
-        db.commit()
-        flash('Post added successfully')
+        error = None
+
+        if not title:
+            error = 'Title required'
+        elif not body:
+            error = 'Post has no content'
+        
+        if error is None:
+            db.execute(
+                'INSERT INTO post \
+                (author_id, title, body) VALUES (?, ?, ?)',
+                (g.user['id'], title, body)
+            )
+            db.commit()
+            flash('Post added successfully')
+        else:
+            flash(error)
 
     posts = db.execute(
         'SELECT * FROM post \

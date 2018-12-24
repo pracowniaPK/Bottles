@@ -30,6 +30,19 @@ def test_create_post(client, auth):
     assert b'testing title' in response.data
     assert b'testing body' in response.data
 
+def test_post_validation(client, auth):
+    auth.login(username='test2', password='test2')
+    response = client.post('/', data={'title':'','body':'empty title'})
+    assert b'Title required' in response.data
+    response = client.post('/', data={'title':'empty body','body':''})
+    assert b'Post has no content' in response.data
+    auth.logout()
+
+    auth.login()
+    response = response = client.get('/')
+    assert b'empty title' not in response.data
+    assert b'empty body' not in response.data
+
 def test_subscribe(client, auth):
     auth.login()
     response = client.get('/users')
