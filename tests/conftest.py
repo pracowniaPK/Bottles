@@ -3,10 +3,8 @@ import tempfile
 
 import pytest
 from bottles import create_app
-from bottles.db import get_db, init_db
-
-with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
+from bottles.db import init_db
+from data import create_test_data
 
 
 class AuthAction:
@@ -30,14 +28,15 @@ def auth(client):
 def app():
     db_fd, db_path = tempfile.mkstemp()
 
+    db_path_sqlized = 'sqlite:///' + db_path
     app = create_app({
         'TESTING': True,
-        'DATABASE': db_path,
+        'DATABASE': db_path_sqlized,
     })
 
     with app.app_context():
         init_db()
-        get_db().executescript(_data_sql)
+        create_test_data()
 
     yield app
 

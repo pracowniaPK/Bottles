@@ -35,12 +35,12 @@ description
 <div class="card">
     <div class="card-body">
         <h5 class="card-title">
-            {{ post.title }}
+            {{ post[0].title }}
         </h5>
-        <p class="card-text">{{ post.body }}</p>
+        <p class="card-text">{{ post[0].body }}</p>
     </div>
     <div class="card-footer text-muted">
-        created on {{ post.created }} by {{ post.nick }}
+        created on {{ post[0].created }} by {{ post[1].nick }}
         <!-- TODO post['created'].strftime('%Y-%m-%d') -->
     </div>
 </div>

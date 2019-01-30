@@ -2,35 +2,33 @@ import sqlite3
 
 import click
 from flask import current_app, g
-from flask.cli import with_appcontext
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 
-def get_db():
-    if 'db' not in g:
-        g.db = sqlite3.connect(
-            current_app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES,
-        )
-        g.db.row_factory = sqlite3.Row
-    return g.db
+def get_engine():
+    engine = create_engine(current_app.config["DATABASE"], convert_unicode=True)
+    return engine
 
-def close_db(e=None):
-    db = g.pop('db', None)
-    if db is not None:
-        db.close()
+def get_db_session():
+    if 'db_session' not in g:
+        engine = get_engine()
+        db_session = scoped_session(sessionmaker(autocommit=False,
+                                                autoflush=False,
+                                                bind=engine))
+        g.db_session = db_session
+    return g.db_session
+
+Base = declarative_base()
 
 def init_db():
-    db = get_db()
+    engine = get_engine()
+    import bottles.models
+    Base.metadata.create_all(bind=engine)
 
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
-
-@click.command('init-db')
-@with_appcontext
-def init_db_command():
-    init_db()
-    click.echo('initialized db')
-
-def init_app(app):
-    app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
+def reset_db():
+    engine = get_engine()
+    import bottles.models
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)

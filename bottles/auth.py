@@ -3,9 +3,11 @@ import functools
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from bottles.db import get_db
+from bottles.db import get_db_session
+from bottles.models import User
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -16,7 +18,7 @@ def register():
         nick = request.form['nick']
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
+        s = get_db_session()
         error = None
 
         if not nick:
@@ -25,19 +27,15 @@ def register():
             error = 'Username required'
         elif not password:
             error = 'Passwd required'
-        elif db.execute('SELECT id FROM user WHERE nick = ?',
-                        (nick, )).fetchone() is not None:
+        elif s.query(User).filter(User.nick == nick).all():
             error = 'Nick {} is already taken.'.format(nick)
-        elif db.execute('SELECT id FROM user WHERE username = ?',
-                        (username, )).fetchone() is not None:
+        elif s.query(User).filter(User.username == username).all():
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
-            db.execute(
-                'INSERT INTO user (nick, username, password) VALUES (?, ?, ?)',
-                (nick, username, generate_password_hash(password))
-            )
-            db.commit()
+            password = generate_password_hash(password)
+            s.add(User(nick=nick, username=username, password=password))
+            s.commit()
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -49,20 +47,21 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
+        s = get_db_session()
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username, )
-        ).fetchone()
+        try:
+            user = s.query(User).filter(User.username == username).one()
+        except NoResultFound:
+            user = None
 
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user.password, password):
             error = 'Incorrect password.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user.id
             return redirect(url_for('index'))
 
         flash(error)
@@ -81,9 +80,8 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id, )
-        ).fetchone()
+        s = get_db_session()
+        g.user = s.query(User).filter(User.id == user_id).one()
 
 def login_required(view):
     @functools.wraps(view)

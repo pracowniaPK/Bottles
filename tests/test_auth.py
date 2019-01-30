@@ -1,6 +1,8 @@
 import pytest
 from flask import g, session
-from bottles.db import get_db
+
+from bottles.db import get_db_session
+from bottles.models import User
 
 
 def test_register(client, app):
@@ -11,9 +13,8 @@ def test_register(client, app):
     assert 'http://localhost/auth/login' == response.headers['Location']
 
     with app.app_context():
-        assert get_db().execute(
-            'SELECT * FROM user WHERE username = "a"'
-        ).fetchone() is not None
+        s = get_db_session()
+        assert len(s.query(User).filter(User.username == 'a').all()) == 1
 
 @pytest.mark.parametrize(
     'nick,username,password,message',
@@ -28,7 +29,6 @@ def test_register_validate_input(client, nick, username, password, message):
         '/auth/register',
         data={'nick': nick, 'username': username, 'password': password}
     )
-    print(response.data)
     assert message in response.data
 
 def test_login(client, auth):
@@ -38,14 +38,14 @@ def test_login(client, auth):
 
     with client:
         client.get('/')
-        print(g.user['nick'])
-        print(g.user['username'])
+        print(g.user.nick)
+        print(g.user.username)
         assert session['user_id'] == 1
-        assert g.user['nick'] == 'test_nick'
-        assert g.user['username'] == 'test'
+        assert g.user.nick == 'test_nick'
+        assert g.user.username == 'test'
 
 @pytest.mark.parametrize(
-    ('username,password,message'),
+    'username,password,message',
     [('test', 'a', b'Incorrect password.'),
     ('a', 'test', b'Incorrect username.')]
 )
