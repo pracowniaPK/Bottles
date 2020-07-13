@@ -32,10 +32,12 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.add_url_rule('/', endpoint='index')
 
-    from bottles.db import get_db_session
+    from bottles.db import get_db_session, init_db_command, reset_db_command
     @app.teardown_appcontext
     def shutdown_session(exception=None):
         db_session = get_db_session()
         db_session.remove()
+    app.cli.add_command(init_db_command)
+    app.cli.add_command(reset_db_command)
 
     return app

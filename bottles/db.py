@@ -2,6 +2,7 @@ import sqlite3
 
 import click
 from flask import current_app, g
+from flask.cli import with_appcontext
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -27,8 +28,20 @@ def init_db():
     import bottles.models
     Base.metadata.create_all(bind=engine)
 
+@click.command('ini_-db')
+@with_appcontext
+def init_db_command():
+    init_db()
+    click.echo('DB initialized')
+
 def reset_db():
     engine = get_engine()
     import bottles.models
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+
+@click.command('reset_db')
+@with_appcontext
+def reset_db_command():
+    reset_db()
+    click.echo('DB reseted')
