@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 def get_engine():
-    engine = create_engine(current_app.config["DATABASE"], convert_unicode=True)
+    engine = create_engine(current_app.config["DATABASE_URI"], convert_unicode=True)
     return engine
 
 def get_db_session():
@@ -28,7 +28,7 @@ def init_db():
     import bottles.models
     Base.metadata.create_all(bind=engine)
 
-@click.command('ini_-db')
+@click.command('init_db')
 @with_appcontext
 def init_db_command():
     init_db()

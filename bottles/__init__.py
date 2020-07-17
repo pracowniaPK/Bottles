@@ -2,28 +2,24 @@ import os
 
 from flask import Flask
 
+from .config import *
 
-def create_app(test_config=None):
+def create_app(config=None):
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object('bottles.config.Config')
-    try:
-        app.config.from_object(os.environ['APP_SETTINGS'])
-    except:
-        pass
-    app.config.from_pyfile('config.py')
+    
+    if os.environ['FLASK_ENV'] == 'development':
+        app.config.from_object(DevelopmentConfig)
+    if os.environ['FLASK_ENV'] == 'production':
+        app.config.from_object(ProductionConfig)
+    if config:
+        if config.get('TESTING'):
+            app.config.from_object(TestingConfig)
+        app.config.from_mapping(config)
 
-    db_path = os.path.join(app.instance_path, 'db.sqlite')
-    db_path = 'sqlite:///' + db_path
-    app.config.from_mapping(
-        DATABASE=db_path,
-    )
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
-    if test_config is not None:
-        app.config.from_mapping(test_config)
 
     from . import blog
     app.register_blueprint(blog.bp)

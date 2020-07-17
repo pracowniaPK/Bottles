@@ -9,7 +9,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
-    password = Column(String(80), nullable=False)
+    password = Column(String(100), nullable=False)
     nick = Column(String(80), unique=True, nullable=False)
 
     def __repr__(self):

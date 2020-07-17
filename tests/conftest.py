@@ -31,11 +31,13 @@ def app():
     db_fd, db_path = tempfile.mkstemp()
 
     db_path_sqlized = 'sqlite:///' + db_path
-    with patch.dict('os.environ', {'SECRET_KEY': 'dev', 'DATABASE_URL': ' '}):
-        app = create_app({
-            'TESTING': True,
-            'DATABASE': db_path_sqlized,
-        })
+    # env_vars = {'SECRET_KEY': 'dev', 'DATABASE_URI': db_path_sqlized}
+    # with patch.dict('os.environ', env_vars):
+    os.environ['DATABASE_URI'] = db_path_sqlized
+    app = create_app({
+        'TESTING': True,
+        'DATABASE_URI': db_path_sqlized,
+    })
 
     with app.app_context():
         init_db()
